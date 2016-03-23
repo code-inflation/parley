@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(function() {
+
+            var msg = $("#msg");
+            var log = $("#log");
+
+            msg.focus();
+
+            $("#form").submit(function() {
+                if (msg.val()) {
+                    conn.send(msg.val());
+                    msg.val("");
+                }
+                return false
+            });
+
+            var conn = new WebSocket("ws://" + location.host + "/ws");
+            conn.onmessage = function(evt) {
+                $("<div/>").text(evt.data).appendTo(log);
+            }
+
+        });
+    </script>
+</head>
+<body>
+    <code id="log"></code>
+    <form id="form">
+        <input type="text" id="msg" size="64" autocomplete="off" />
+    </form>
+</body>
+</html>

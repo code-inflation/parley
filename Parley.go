@@ -6,6 +6,14 @@ import (
 	"net/http"
 )
 
+
+var wsupgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+
+var connections [] *websocket.Conn
+
 func main() {
 	r := gin.Default()
 	r.LoadHTMLFiles("index.html")
@@ -21,14 +29,10 @@ func main() {
 	r.Run("localhost:3000")
 }
 
-var wsupgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-}
-
 func websocks(responseWriter http.ResponseWriter, request *http.Request) {
 
 	connection, err := wsupgrader.Upgrade(responseWriter, request, nil)
+	connections = append(connections, connection)
 
 	if err != nil {
 		// TODO log this
@@ -40,6 +44,9 @@ func websocks(responseWriter http.ResponseWriter, request *http.Request) {
 		if err != nil {
 			break
 		}
-		connection.WriteMessage(t, msg)
+
+		for _,connection := range connections{
+			connection.WriteMessage(t, msg)
+		}
 	}
 }

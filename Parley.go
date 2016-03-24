@@ -7,11 +7,12 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"time"
 )
 
 type Connection struct {
-	uname  string
-	socket *websocket.Conn
+	username string
+	socket   *websocket.Conn
 }
 
 var wsupgrader = websocket.Upgrader{
@@ -39,17 +40,17 @@ func main() {
 	})
 
 	r.GET("/ws/:uname", func(c *gin.Context) {
-		uname := c.Param("uname")
-		websocks(c.Writer, c.Request, uname)
+		username := c.Param("uname")
+		openws(c.Writer, c.Request, username)
 	})
 
 	r.Run(fmt.Sprintf("localhost:%v", *port))
 }
 
-func websocks(responseWriter http.ResponseWriter, request *http.Request, uname string) {
+func openws(responseWriter http.ResponseWriter, request *http.Request, username string) {
 
 	socket, err := wsupgrader.Upgrade(responseWriter, request, nil)
-	connections = append(connections, Connection{uname, socket})
+	connections = append(connections, Connection{username, socket})
 
 	if err != nil {
 		log.Print(err)
@@ -63,10 +64,16 @@ func websocks(responseWriter http.ResponseWriter, request *http.Request, uname s
 			break
 		}
 
-		msg = append([]byte(uname+" says "), msg...)
+		msg = buildMsg(msg, username)
 
 		for _, connection := range connections {
 			connection.socket.WriteMessage(t, msg)
 		}
 	}
+}
+
+func buildMsg(msg []byte, username string) []byte {
+	now := time.Now().Format("15:04:05")
+	now =  fmt.Sprintf("%s", now)
+	return append([]byte(now + " | " + username + ": "), msg...);
 }

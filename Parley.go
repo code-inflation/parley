@@ -23,7 +23,7 @@ var connections []Connection
 
 func main() {
 
-	port := flag.Int("p", 3000, "The port the chatserver is running on. Default is 3000")
+	port := flag.Int("p", 3000, "server port 3000")
 	flag.Parse()
 
 	// check if port number is between 1 and 65535

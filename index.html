@@ -18,7 +18,9 @@
                 return false
             });
 
-            var conn = new WebSocket("ws://" + location.host + "/ws");
+            var name=prompt("Please enter your name","Harry Potter");
+
+            var conn = new WebSocket("ws://" + location.host + "/ws/" + name);
             conn.onmessage = function(evt) {
                 $("<div/>").text(evt.data).appendTo(log);
             }

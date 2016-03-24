@@ -4,15 +4,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"net/http"
+	"log"
 )
 
+type Connection struct {
+	uname  string
+	socket *websocket.Conn
+}
 
 var wsupgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
 
-var connections [] *websocket.Conn
+var connections []Connection
 
 func main() {
 	r := gin.Default()
@@ -22,31 +27,35 @@ func main() {
 		c.HTML(200, "index.html", nil)
 	})
 
-	r.GET("/ws", func(c *gin.Context) {
-		websocks(c.Writer, c.Request)
+	r.GET("/ws/:uname", func(c *gin.Context) {
+		uname := c.Param("uname")
+		websocks(c.Writer, c.Request, uname)
 	})
 
 	r.Run("localhost:3000")
 }
 
-func websocks(responseWriter http.ResponseWriter, request *http.Request) {
+func websocks(responseWriter http.ResponseWriter, request *http.Request, uname string) {
 
-	connection, err := wsupgrader.Upgrade(responseWriter, request, nil)
-	connections = append(connections, connection)
+	socket, err := wsupgrader.Upgrade(responseWriter, request, nil)
+	connections = append(connections, Connection{uname, socket})
 
 	if err != nil {
-		// TODO log this
+		log.Fatal(err)
 		return
 	}
 
 	for {
-		t, msg, err := connection.ReadMessage()
+		t, msg, err := socket.ReadMessage()
 		if err != nil {
+			log.Fatal(err)
 			break
 		}
 
-		for _,connection := range connections{
-			connection.WriteMessage(t, msg)
+		msg = append([]byte(uname+" says "), msg...)
+
+		for _, connection := range connections {
+			connection.socket.WriteMessage(t, msg)
 		}
 	}
 }

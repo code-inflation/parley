@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"log"
@@ -20,6 +22,15 @@ var wsupgrader = websocket.Upgrader{
 var connections []Connection
 
 func main() {
+
+	port := flag.Int("p", 3000, "The port the chatserver is running on. Default is 3000")
+	flag.Parse()
+
+	// check if port number is between 1 and 65535
+	if *port <= 0 || *port > 1<<16-1 {
+		log.Fatal(fmt.Sprintf("port %v number invalid", *port))
+	}
+
 	r := gin.Default()
 	r.LoadHTMLFiles("index.html")
 
@@ -32,7 +43,7 @@ func main() {
 		websocks(c.Writer, c.Request, uname)
 	})
 
-	r.Run("localhost:3000")
+	r.Run(fmt.Sprintf("localhost:%v", *port))
 }
 
 func websocks(responseWriter http.ResponseWriter, request *http.Request, uname string) {

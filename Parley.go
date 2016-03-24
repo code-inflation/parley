@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"net/http"
 	"log"
+	"net/http"
 )
 
 type Connection struct {
@@ -41,14 +41,14 @@ func websocks(responseWriter http.ResponseWriter, request *http.Request, uname s
 	connections = append(connections, Connection{uname, socket})
 
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return
 	}
 
 	for {
 		t, msg, err := socket.ReadMessage()
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 			break
 		}
 

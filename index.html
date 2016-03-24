@@ -2,6 +2,20 @@
 <html>
 <head>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <style>
+    #msg{
+        width: 98%;
+        position: absolute; 
+        bottom: 10px; 
+    }
+    #main{
+        position: relative;
+        background:#F8F8FF;
+        border:black dashed 1px;
+        padding:10px;
+        height: 90vh;
+    }​
+    </style>
     <script type="text/javascript">
         $(function() {
 
@@ -29,9 +43,11 @@
     </script>
 </head>
 <body>
-    <code id="log"></code>
-    <form id="form">
-        <input type="text" id="msg" size="64" autocomplete="off" />
-    </form>
+    <div id="main">
+        <code id="log"></code>
+        <form id="form">
+            <input type="text" id="msg" autocomplete="off" />
+        </form>
+    </div>
 </body>
 </html>

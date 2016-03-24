@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"parley/core"
 	"time"
 )
 
@@ -23,7 +24,11 @@ var wsupgrader = websocket.Upgrader{
 var connections []Connection
 
 func main() {
+	port := parsePort()
+	setUpRouter(port)
+}
 
+func parsePort() int {
 	port := flag.Int("p", 3000, "server port 3000")
 	flag.Parse()
 
@@ -32,6 +37,10 @@ func main() {
 		log.Fatal(fmt.Sprintf("port %v number invalid", *port))
 	}
 
+	return *port
+}
+
+func setUpRouter(port int) {
 	r := gin.Default()
 	r.LoadHTMLFiles("index.html")
 
@@ -44,7 +53,7 @@ func main() {
 		openws(c.Writer, c.Request, username)
 	})
 
-	r.Run(fmt.Sprintf("localhost:%v", *port))
+	r.Run(fmt.Sprintf("localhost:%v", port))
 }
 
 func openws(responseWriter http.ResponseWriter, request *http.Request, username string) {
@@ -58,22 +67,17 @@ func openws(responseWriter http.ResponseWriter, request *http.Request, username 
 	}
 
 	for {
-		t, msg, err := socket.ReadMessage()
+		t, inputBytes, err := socket.ReadMessage()
 		if err != nil {
 			log.Print(err)
 			break
 		}
 
-		msg = buildMsg(msg, username)
+		msg := core.Message{Username: username, Text: string(inputBytes), Time: time.Now()}
+		jsonBytes := msg.BuildJson()
 
 		for _, connection := range connections {
-			connection.socket.WriteMessage(t, msg)
+			connection.socket.WriteMessage(t, jsonBytes)
 		}
 	}
-}
-
-func buildMsg(msg []byte, username string) []byte {
-	now := time.Now().Format("15:04:05")
-	now =  fmt.Sprintf("%s", now)
-	return append([]byte(now + " | " + username + ": "), msg...);
 }

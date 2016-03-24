@@ -22,6 +22,14 @@
             var msg = $("#msg");
             var log = $("#log");
 
+            var name=prompt("Please enter your name","Harry Potter");
+            var conn = new WebSocket("ws://" + location.host + "/ws/" + name);
+            conn.onmessage = function(evt) {
+                m = JSON.parse(evt.data);
+                var txt = "|" + m.time + "| " + m.username + ": " + m.text;
+                $("<div/>").text(txt).appendTo(log);
+            }
+
             msg.focus();
 
             $("#form").submit(function() {
@@ -29,16 +37,8 @@
                     conn.send(msg.val());
                     msg.val("");
                 }
-                return false
+                return false;
             });
-
-            var name=prompt("Please enter your name","Harry Potter");
-
-            var conn = new WebSocket("ws://" + location.host + "/ws/" + name);
-            conn.onmessage = function(evt) {
-                $("<div/>").text(evt.data).appendTo(log);
-            }
-
         });
     </script>
 </head>

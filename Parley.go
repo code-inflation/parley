@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
-	"parley/core"
+	"./core"
 	"time"
 )
 

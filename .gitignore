@@ -29,3 +29,7 @@ _testmain.go
 
 # sqlite3
 *.db
+
+# compiled binarys
+parley
+parley.exe

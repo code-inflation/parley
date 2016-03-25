@@ -1,0 +1,10 @@
+<html>
+<h1>
+    ADMIN
+</h1>
+<div>
+    {{ range $index, $msg := .msgs }}
+    | {{ $msg.Time }} | <strong>{{ $msg.Username }}</strong>: {{ $msg.Text }}<br/>
+    {{ end }}
+</div>
+</html>

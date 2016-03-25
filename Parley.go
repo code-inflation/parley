@@ -6,6 +6,7 @@ import (
 	"github.com/code-inflation/parley/core"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"net/http"
 	"time"
@@ -22,6 +23,8 @@ var wsupgrader = websocket.Upgrader{
 }
 
 var connections []Connection
+
+var dblog *core.Dblogger = core.NewDblogger()
 
 func main() {
 	port := parsePort()
@@ -42,10 +45,16 @@ func parsePort() int {
 
 func setUpRouter(port int) {
 	r := gin.Default()
-	r.LoadHTMLFiles("index.html")
+	r.LoadHTMLGlob("templates/*")
 
 	r.GET("/", func(c *gin.Context) {
-		c.HTML(200, "index.html", nil)
+		c.HTML(http.StatusOK, "index.html", nil)
+	})
+
+	r.GET("/admin", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "admin.tmpl", gin.H{
+			"msgs": dblog.FindAllMsg(),
+		})
 	})
 
 	r.GET("/ws/:uname", func(c *gin.Context) {
@@ -75,9 +84,10 @@ func openws(responseWriter http.ResponseWriter, request *http.Request, username 
 
 		msg := core.Message{Username: username, Text: string(inputBytes), Time: time.Now()}
 		jsonBytes := msg.BuildJson()
+		go dblog.SaveMsg(msg)
 
 		for _, connection := range connections {
-			connection.socket.WriteMessage(t, jsonBytes)
+			go connection.socket.WriteMessage(t, jsonBytes)
 		}
 	}
 }

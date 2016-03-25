@@ -25,4 +25,7 @@ _testmain.go
 
 # idea
 .idea
-parley.iml
+*.iml
+
+# sqlite3
+*.db

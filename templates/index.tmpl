@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            background-color: #fff;
+            line-height: 1.3em;
+        }
+        #msg{
+            width: 98%;
+            position: absolute;
+            bottom: 10px;
+        }
+        #main{
+            position: relative;
+            background:#F8F8FF;
+            border:black dashed 1px;
+            padding:10px;
+            height: 90vh;
+        }
+        #log{
+            height: inherit;
+            overflow: scroll;
+        }
+        span.time{
+            font-size: 11px;
+            color: #333;
+        }
+        span.name{
+            font-style: italic;
+        }
+    </style>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(function() {
+
+            var msgInput = $("#msg");
+            var log = $("#log");
+
+            var name = ""
+            var reg = /^[A-Za-z0-9_-]+$/;
+
+            while (!name.match(reg)){
+                name = prompt("Please enter your name","Harry_Potter");
+            }
+
+            var conn = new WebSocket("ws://" + location.host + "/ws/" + name);
+            conn.onmessage = function(evt) {
+                msg = JSON.parse(evt.data);
+                var txt = "<div><span class=\"time\">|" + msg.time + "|</span> <span class=\"name\">" + msg.username + ":</span> " + msg.text +"</div>";
+                log.append(txt);
+                log.scrollTop(log.prop('scrollHeight'));
+            }
+
+            msgInput.focus();
+
+            $("#form").submit(function() {
+                if (msgInput.val()) {
+                    conn.send(msgInput.val());
+                    msgInput.val("");
+                }
+                return false;
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="main">
+        <div id="log"></div>
+    </div>
+    <form id="form">
+        <input type="text" id="msg" autocomplete="off" />
+    </form>
+</body>
+</html>

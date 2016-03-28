@@ -48,7 +48,7 @@ func setUpRouter(port int) {
 	r.LoadHTMLGlob("templates/*")
 
 	r.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.html", nil)
+		c.HTML(http.StatusOK, "index.tmpl", nil)
 	})
 
 	r.GET("/admin", func(c *gin.Context) {

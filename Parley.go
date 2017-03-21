@@ -3,13 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/code-inflation/parley/core"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	_ "github.com/mattn/go-sqlite3"
-	"log"
-	"net/http"
-	"time"
 )
 
 type Connection struct {
@@ -83,7 +84,7 @@ func openws(responseWriter http.ResponseWriter, request *http.Request, username 
 		}
 
 		msg := core.Message{Username: username, Text: string(inputBytes), Time: time.Now()}
-		jsonBytes := msg.BuildJson()
+		jsonBytes := msg.BuildJSON()
 		go dblog.SaveMsg(msg)
 
 		for _, connection := range connections {
